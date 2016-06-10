@@ -1,0 +1,139 @@
+/*contains common  tyle for php files*/\
+body{
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	background-color:#ecf0f1;
+}
+
+html {
+	font-family: GillSans, Calibri, Trebuchet, sans-serif;
+}
+
+.inColor{
+	border-color: #00c853;
+}
+
+.delete{
+	float:right;
+	margin-top:15px;
+	cursor:pointer;
+	-webkit-transition:color .1s linear;
+       -moz-transition:color .1s linear;
+        -ms-transition:color .1s linear;
+}
+
+.delete:hover{
+	color:red;
+}
+
+.delete-comment{
+	margin-top:5px;
+	float:right;
+	font-size:20px;
+	cursor:pointer;
+	-webkit-transition:color .1s linear;
+       -moz-transition:color .1s linear;
+        -ms-transition:color .1s linear;
+}
+
+.delete-comment:hover{
+	color:red;
+}
+
+.posts{
+	background-color:white;
+	margin:10px;
+}
+
+.stsMsg{
+	font-family: 'Quicksand', sans-serif;
+	font-size:16px;
+	font-weight:bold;
+}
+
+li i{
+	color:#01579b;
+}
+
+.number{
+	cursor:pointer;
+}
+
+.headerNav li{
+	float:right;
+	display:inline-block;
+	height:100%;
+	font-size:18px;
+	font-weight:bold;
+	padding-right:10px;
+	padding-left:10px;
+	color:#2c3e50;
+}
+
+.full{
+	width:100%;
+}
+
+.headerNav li:hover{
+	background-color:#ecf0f1;
+	cursor:pointer;
+}
+
+.userImg{
+	width:65px;
+	height:65px;
+	background:red;
+	float:left;
+}
+
+.headerNav{
+	float:right;
+	height:100%;
+}
+
+.nameSpan{
+	float:left;
+	padding:0px;
+	margin:0px;
+	top:20px;
+	font-size:20px;
+	/*color:#336E7B;*/
+	color:#40c4ff;
+	font-weight:bold;
+}
+
+.nameSpanPost{
+	display:block;
+	font-size:20px;
+	font-weight:bold;
+}
+
+.nameSpanPost a{
+	color:#40c4ff;
+}
+
+.nav-wrapper{
+	background-color:white;
+}
+
+.chkd{
+	color:#F64747;
+	cursor:pointer;
+}
+
+.unchkd{
+	color:#34495e;	
+	cursor:pointer;
+}
+.unchkd:hover{color:#808080;}
+.cmnt{
+	color:#4183D7;
+	cursor:pointer;
+}
+
+.dateTime{
+	color:#7f8c8d;
+	float:left;
+	font-size:13px;
+}
