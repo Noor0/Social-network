@@ -1,5 +1,5 @@
 ##Social Network
-is a simple social network with realtime chatting functionality using server sent events events , its back-end built with core PHP and front-end with html and a css frame work called Materialize CSS
+is a social network with realtime chatting functionality using server sent events events , its back-end built with core PHP and front-end with html and a css frame work called Materialize CSS
 
 since i couldn't integerate emojis in the chatting i have created some chat codes that can bold,italicise,underline and change the color of a particular part of your message. These codes start with an opening piece`*o`
 then a combination of characters are used to mention one of the four operations `b for **bold**` `u for *underline*` `i for *italics*`
