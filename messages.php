@@ -2,7 +2,8 @@
 require_once "common.php";
 checkSession();
 $reqs=requestCheck();
-$_SESSION["lastMsgId"]=0;
+$_SESSION["lastLowerMsgId"]=0;
+$_SESSION["lastUpperMsgId"]=0;
 $_SESSION["currentPerson"]=0;
 ?>
 <!DOCTYPE html>
@@ -25,6 +26,7 @@ $_SESSION["currentPerson"]=0;
 	.l-panel{
 		height:100%;
 		padding: 120px 35px 0px 0px;
+		overflow:auto;
 	}
 	.fullbody{
 		position:relative;
@@ -64,9 +66,10 @@ $_SESSION["currentPerson"]=0;
 		padding:5px 14px 5px 14px;
 		color:white;
 		font-family: 'Lato', sans-serif;
-		font-size:18px;
-		max-width:50%;
+		font-size:16px;
+		max-width:48%;
 		border-radius: 20px;
+		margin:3px;
 	}
 	.mid{
 		border-right: 2px solid #bfbfbf;
@@ -76,6 +79,7 @@ $_SESSION["currentPerson"]=0;
 
 	#txtArea{
 		width:100%;
+		border-color:#40c4ff;
 	}
 
 	#screen{
@@ -87,6 +91,28 @@ $_SESSION["currentPerson"]=0;
 
 	#nameOnTop{
 		text-align:center;
+	}
+
+	.yellowMy{
+		color: yellow;
+	}
+	.pinkMy{
+		color: pink;
+	}
+	.blackMy{
+		color: black;
+	}
+	.orangeMy{
+		color: orange;
+	}
+	.bold{
+		font-weight: bold;
+	}
+	.underline{
+		text-decoration: underline;
+	}
+	.italics{
+		font-style: italic;
 	}
 
 	</style>
@@ -136,7 +162,8 @@ $_SESSION["currentPerson"]=0;
 								$friendRow=$friendResult->fetch_array(MYSQLI_ASSOC);
 								if($friendRow['dpId'] != NULL){
 									$friendDpResult=$con->query("SELECT * FROM picture WHERE userId=".$friendRow['userId']." AND pictureId=".$friendRow['dpId']);
-									echo "<img src='data:".$friendRow['type'].";base64,".base64_encode($friendRow['picture'])."' class='userImgMsg'>";
+									$friendDpRow=$friendDpResult->fetch_array(MYSQLI_ASSOC);
+									echo "<img src='data:".$friendDpRow['type'].";base64,".base64_encode($friendDpRow['picture'])."' class='userImgMsg'>";
 								}
 								else{
 									if($friendRow['gender']==1)
@@ -144,7 +171,7 @@ $_SESSION["currentPerson"]=0;
 									else
 										echo "<img src=default/female.png class='userImgMsg'>";
 								}
-								echo "<a href='profile.php?personId='".$friendRow['userId']."' class='nameSpanPost'>".$friendRow['firstName']." ".$friendRow['lastName']."</a>";
+								echo "<a href='profile.php?personId=".$friendRow['userId']."' class='nameSpanPost'>".$friendRow['firstName']." ".$friendRow['lastName']."</a>";
 							}
 
 							echo"<input type='hidden' class='thePerson' value='".$friendRow['userId']."' />
@@ -155,11 +182,9 @@ $_SESSION["currentPerson"]=0;
 				?>
 			</div>
 			<div class="col l7 m8 s8 mid">
-			<div class="col s12"><!--<div class="col s4 push-s5">--><h5 id="nameOnTop">Noor Haq</h5></div><!--</div>-->
+			<div class="col s12"><!--<div class="col s4 push-s5">--><h5 id="nameOnTop">Select someone to talk to</h5></div><!--</div>-->
 				<div id="screen">
 					<p class="mine message">hello this is your father fatherfatherfather father father father father father father father father father father father father </p>
-					<p class="they message">abcd father father father father father father father father father father father father </p>
-					<p class="they message">abcd father father father father father father father father father father father father </p>
 				</div>
 				<div class="input-field col s12">
 		          	<textarea id="txtArea" name="message" class="materialize-textarea"></textarea>
@@ -168,27 +193,54 @@ $_SESSION["currentPerson"]=0;
 			</div>
 		</div>
 		<script type="text/javascript">
+			
+
 			var txtArea=document.getElementById('txtArea');
 			
 			var screen = document.getElementById('screen');
 
-			var requestObj = new XMLHttpRequest();
+			var myId = document.getElementById('idd');
 
 			var currentSelectedPerson;
 
 			var nameOnTop = document.getElementById('nameOnTop');
 
+			if(typeof(EventSource) == "undefined"){
+				alert("Your browser is either incompatible with the network or is outdateda\nPlease update your browser or change it as you are unable to recieve messages on this one")
+			}
+			else{
+				var event = new EventSource("realTimeSender.php");
+				event.onmessage=function(ee){
+					var theUpdate=JSON.parse(ee.data);
+					for (var i = 0; i < theUpdate.themMessasges.length; i++) {
+						if(theUpdate.themMessasges[i].id == myId.value){
+							$(screen).append("<p class='mine message'>"+replaceAll(theUpdate.themMessasges[i].theMessage)+"</p>");
+
+						}
+						else{
+							$(screen).append("<p class='they message'>"+replaceAll(theUpdate.themMessasges[i].theMessage)+"</p>");
+						}
+						screen.scrollTop=screen.scrollHeight;
+					}
+				}
+				/*event.addEventListener("msgchk", function(evt){
+					console.log(evt.data);
+				});*/
+			}
+
+
 			txtArea.addEventListener("keydown", function(evt){
 				if(evt.keyCode == 13){
 					//sendMessage
+					var requestObj = new XMLHttpRequest();
 					requestObj.open("POST","messageFunctions.php",true);
 					requestObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 					requestObj.send("theMessage="+txtArea.value+"&opCode=2");
 					requestObj.onload=function() {
 						if(requestObj.responseText=="notsent"){
-							alert("seems like there is some problem, couldn't send your message");
+							alert("seems like there is some problem, couldn\'t send your message");
 						}
-						else{
+						else if(requestObj.responseText=="sent"){
 							txtArea.value="";
 						}
 					}
@@ -196,6 +248,7 @@ $_SESSION["currentPerson"]=0;
 				}
 			});
 			function setMe(me){
+				var requestObj = new XMLHttpRequest();
 				var thePersonArray=me.getElementsByClassName("thePerson");
 				if(currentSelectedPerson != thePersonArray[0].value){
 					requestObj.open("POST","messageFunctions.php",true);
@@ -209,14 +262,23 @@ $_SESSION["currentPerson"]=0;
 			}
 
 			function initialFetch(){
+				var requestObj = new XMLHttpRequest();
 				requestObj.open("POST","messageFunctions.php",true);
 				requestObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				requestObj.send("opCode=4");
 				requestObj.onload=function(){
 					if(requestObj.responseText != "nono"){
 						var responseJSON = JSON.parse(requestObj.responseText);
-						
+						for (var i = 0 ; i < responseJSON.messages.length ; i++) {
+							if(responseJSON.messages[i].id == myId.value){
+								$(screen).append("<p class='mine message'>"+replaceAll(responseJSON.messages[i].theMessage)+"</p>");
+							}
+							else{
+								$(screen).append("<p class='they message'>"+replaceAll(responseJSON.messages[i].theMessage)+"</p>");
+							}
+						}
 					}
+					screen.scrollTop=screen.scrollHeight;
 				}
 
 			}
@@ -225,13 +287,110 @@ $_SESSION["currentPerson"]=0;
 				screen.innerHTML = "";
 			}
 
-			screen.addEventListener('onscroll', function(evt){
-				if(screen.scrollTop == 0){					
-					requestObj.open("GET","messageFunctions.php",true);
-					requestObj.send();
+			screen.addEventListener('scroll', function(evt){
+				if(screen.scrollTop == 0){
+					console.log('sending request');
+					var requestObj = new XMLHttpRequest();
+					requestObj.open("POST","messageFunctions.php",true);
+					requestObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					requestObj.onload=function(){
+						console.log(requestObj.responseText);
+						var parsedJSON = JSON.parse(requestObj.responseText);
+						for (var i = 0; i < parsedJSON.messages.length; i++) {
+							if(parsedJSON.messages[i].id == myId.value){
+								$(screen).prepend("<p class='mine message'>"+replaceAll(parsedJSON.messages[i].theMessage)+"</p>");
+							}
+							else{
+								$(screen).prepend("<p class='they message'>"+replaceAll(parsedJSON.messages[i].theMessage)+"</p>");
+							}
+						}
+					}
+					requestObj.send("opCode=3");
 				}
 			});
 
+			function replaceAll (mesg) {
+				mesg = mesg.replace("\n", '<br/>');
+				var start =false;
+				//regex = new RegExp("\\*o[bui]{0,3}(?:cy|cb|cp|co){0,1}\\*(.*)\\*cc\\*", 'g');
+				var regex1 = new RegExp("\\*o[bui]{0,3}(?:cy|cb|cp|co){0,1}\\*", 'g');
+				var regex2 = new RegExp("\\*cc\\*", 'g');
+
+				var retString="";
+				var array=mesg.split(" ");
+
+				for (var i = 0; i < array.length; i++) {
+					if(regex1.test(array[i])){
+						//console.log(array[i]);
+						var replacementTag="<span class=\"";
+						var replaceWith="";
+						for (var a = 0; a < array[i].length; a++) {
+							if(array[i].charAt(a) == "*" && a == 0){
+								a+=2;
+								replaceWith+="*o";
+								start =true;
+							}
+							
+							if(start == true && array[i].charAt(a) == "*" && a != 0){
+								replaceWith+="*";
+								replacementTag+="\">";
+								start =false;
+								break;
+							}
+							//start of filtering
+					 		if(start){
+					 			switch (array[i].charAt(a)){
+						 			case 'b':
+						 				replaceWith+="b";
+						 				replacementTag+="bold ";
+						 				break;
+						 			case 'u':
+						 				replaceWith+="u";
+						 				replacementTag+="underline ";
+						 				break;
+						 			case 'i':
+						 				replaceWith+="i";
+						 				replacementTag+="italics ";
+						 				break;
+						 			case 'c':
+						 				replaceWith+="c";
+						 				switch (array[i].charAt(a+1)){
+						 					case 'y':
+							 					replaceWith+="y";
+							 					replacementTag+="yellowMy ";
+							 					break;
+						 					case 'b':
+							 					replaceWith+="b";
+							 					replacementTag+="blackMy ";
+							 					break;
+							 				case 'o':
+							 					replaceWith+="o";
+							 					replacementTag+="orangeMy ";
+							 					break;
+							 				case 'p':
+							 					replaceWith+="p";
+							 					replacementTag+="pinkMy ";
+							 					break;
+						 				}
+						 				a=array[i].length+1;
+						 				replaceWith+="*";
+										replacementTag+="\">";
+					 					break;
+					 			}
+					 		}
+					 	}	//inner for
+					 	array[i]=array[i].replace(replaceWith,replacementTag);
+					}	//regex chechking
+
+					if(regex2.test(array[i])){
+						array[i]=array[i].replace("\*cc\*","</span>");
+					}
+
+					retString+=array[i]+" ";
+				}	
+
+				return retString;
+			}
 
 		</script>	
 	<script src='common.js'></script>
