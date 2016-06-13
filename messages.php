@@ -9,7 +9,7 @@ $_SESSION["currentPerson"]=0;
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Photos</title>
+	<title>Messages</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.css">
 	<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
