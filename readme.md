@@ -8,7 +8,7 @@ to specify color letter 'c' is followed by either one of the following letters `
 `*cc*`
 
 for example
-> message: this is the \*ob\*part\*cc\* which is \*oibcy\*yellow bold italics and underlined\*cc\*
+> message: this is the part which is \*oibcy\*yellow bold italics and underlined\*cc\*
 
 the part `yellow bold italics and underlined` of the message will be displayed as bold, italicised and underlined and its color will be yellow in the chat window
 
